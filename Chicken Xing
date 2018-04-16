@@ -1,0 +1,162 @@
+
+# Make the road
+def makeroad(roadlength, roadwidth, potholeprob) 
+	road = []
+
+	roadx = 0
+	roady = 0
+	potholecheck = 0
+
+		while roadx < roadlength
+		roadrow = []
+		while roady < roadwidth
+			if Random.rand(100) >= (potholeprob)
+				roadrow.push 'O'
+			else
+				roadrow.push 'X'
+				potholecheck += 1
+			end
+
+			roady += 1
+		end
+		road.push roadrow
+		roadx += 1
+		roady = 0
+
+	end
+	return road, potholecheck
+end
+
+# Display the road
+def display(roadlength, roadwidth, road) 
+
+	displaycount = 0
+	displaycount2 = 0
+
+	while displaycount < roadlength
+		while displaycount2 < roadwidth
+			print road[displaycount][displaycount2]
+			print ' '
+			displaycount2 += 1
+		end
+		puts
+		displaycount2 = 0
+		displaycount += 1
+	end
+end
+
+# Check that there's a possible starting point
+def startbreak(road, roadlength) 
+	breakcount = 0
+	while breakcount < roadlength
+			if road[breakcount][0] == 'O'
+				return
+			end
+		breakcount += 1
+	end
+
+	puts 'No possible starting point, exiting...'
+	exit
+end
+
+# Generate starting position
+def getstartpos(road, roadlength) 
+	potcheck = false
+		while potcheck == false
+			startpos = Random.rand(roadlength)
+			if road[startpos][0] == 'O'
+				potcheck = true
+			end
+		end
+	return startpos
+end
+
+
+# Try to find valid path
+def attemptcross(road,currentposx,currentposy,roadwidth,roadlength,path,successcount) 
+
+	# The road matrix is marked with '-'s to show the traveled
+	# path, and the path array stores the positions for display
+	# The implementation for counting the valid paths with successcount 
+	# is a bit janky, but Ruby doesnt like passing mutables so ¯\_(ツ)_/¯ 
+
+	road[currentposy][currentposx] = '-'
+
+	if currentposx == roadwidth -1
+		puts
+		puts 
+		puts 'Success! Path was...'
+		path.push [currentposx,currentposy]
+		print path
+		puts
+		path.pop
+		puts 
+		successcount.push '1'
+		puts
+		puts 'Displaying successful path...'
+		display(roadlength, roadwidth, road)
+	end
+
+	#Attempt a move to the right	
+	if currentposx +1 <= roadwidth -1 && road[currentposy][currentposx +1] != 'X' &&  road[currentposy][currentposx +1] != '-'
+		path.push [currentposx,currentposy]
+		attemptcross(road,currentposx+1,currentposy,roadwidth, roadlength,path,successcount)
+	end
+
+	#Attempt a move down	
+	if currentposy +1 <= roadlength -1 && road[currentposy +1][currentposx] != 'X' &&  road[currentposy +1][currentposx] != '-' && currentposx < roadwidth -1
+		path.push [currentposx,currentposy]
+		attemptcross(road,currentposx,currentposy+1,roadwidth, roadlength,path,successcount)
+	end
+
+	#Attempt a move up	
+	if currentposy -1 >= 0
+		if road[currentposy -1][currentposx] != 'X' &&  road[currentposy -1][currentposx] != '-' && currentposx < roadwidth -1
+			path.push [currentposx,currentposy]
+			attemptcross(road,currentposx,currentposy-1,roadwidth, roadlength,path,successcount)
+		end
+	end
+
+	# Reset last position for proper recursion
+	road[currentposy][currentposx] = 'O'
+	path.pop
+end
+
+#======================================
+roadlength = 9  # Change these to give 
+roadwidth  = 9  # different road sizes
+
+potholeprob = 30.0 # Percent chance of hole existing in a given position
+#======================================
+
+road, potholecheck = makeroad(roadlength, roadwidth, potholeprob)
+
+puts
+puts 'Displaying road... (Top left is [0,0])'
+display(roadlength, roadwidth, road) # Note coordinates save as Y,X
+
+if potholecheck == 0
+	puts 'No pot holes; apparently the sky isnt falling, exiting...'
+	exit
+end
+
+startbreak(road,roadlength)
+
+startpos = getstartpos(road, roadlength)
+
+puts
+puts 'Starting position is at [0,' + startpos.to_s + ']'
+
+traveled = road
+path = []
+successcount = []
+
+attemptcross(road,0,startpos,roadwidth,roadlength,path,successcount)
+
+puts
+
+if successcount.count == 0
+	puts 'The sky really has fallen. Theres no way across...'
+else
+	puts 'There were ' + successcount.count.to_s + ' successful path(s)!'
+end
