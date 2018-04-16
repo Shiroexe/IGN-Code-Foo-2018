@@ -1,3 +1,5 @@
+[Google Doc with better formatting here: https://docs.google.com/document/d/1w9T3gAq8IMMn6hp5w3tHdnUXzkqdChQrsJizG75v3aw/edit?usp=sharing]
+
 1] Who am I?
 Hi, I’m Aaron. Nice to e-meet you. I know this is a text document, but I’m sure you can sense the bond we’re forming already.
 
